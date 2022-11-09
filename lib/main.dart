@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_camera_overlay/model.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_camera_overlay/flutter_camera_overlay.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   OverlayFormat format = OverlayFormat.simID000;
   int tab = 0;
   bool flash = false;
-  final alphanumeric = RegExp(r'(((\d+\s){1,}))');
+  final alphanumeric = RegExp(r'(\d{2,}\s){1,}');
 
   late final TextRecognizer _textDetector;
 
@@ -51,6 +54,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
+  bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+
+    return double.parse(
+          s,
+        ) !=
+        null;
+  }
+
+  void call(String number) => launchUrlString("tel:*121#$number#");
   void _recognizTexts(imagePath) async {
     // Creating an InputImage object using the image path
 
@@ -64,9 +79,17 @@ class _MyHomePageState extends State<MyHomePage> {
         await _textDetector.processImage(inputImage); // Finding text String(s)
     for (TextBlock block in text.blocks) {
       for (TextLine line in block.lines) {
-        print(alphanumeric.hasMatch(line.text));
+        // print(alphanumeric.hasMatch(line.text));
+        // print('text: ${line.text}');
+
         if (alphanumeric.hasMatch(line.text)) {
           print('text: ${line.text}');
+          String newline = line.text.replaceAll(RegExp(r'\s+'), "");
+          print('text: ${newline}');
+
+          if (isNumeric(newline))
+            //call(line.text);
+            FlutterPhoneDirectCaller.callNumber("*121*${newline}#");
         }
       }
     }
@@ -131,41 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
               (XFile file) {
                 print(File(file.path));
                 _recognizTexts(file.path);
-
-                // showDialog(
-                //   context: context,
-                //   barrierColor: Colors.black,
-                //   builder: (context) {
-                //     CardOverlay overlay = CardOverlay.byFormat(format);
-                //     return AlertDialog(
-                //         actionsAlignment: MainAxisAlignment.center,
-                //         backgroundColor: Colors.black,
-                //         title: const Text('Capture',
-                //             style: TextStyle(color: Colors.white),
-                //             textAlign: TextAlign.center),
-                //         actions: [
-                //           OutlinedButton(
-                //               onPressed: () => Navigator.of(context).pop(),
-                //               child: const Icon(Icons.close))
-                //         ],
-                //         content: SizedBox(
-                //             width: double.infinity,
-                //             child: AspectRatio(
-                //               aspectRatio: overlay.ratio!,
-                //               child: Container(
-                //                 decoration: BoxDecoration(
-                //                     image: DecorationImage(
-                //                   fit: BoxFit.fitWidth,
-                //                   alignment: FractionalOffset.center,
-                //                   image: FileImage(
-                //                     File(file.path),
-                //                   ),
-                //                 )),
-                //               ),
-                //             ))
-                //             );
-                //   },
-                // );
               },
               info:
                   'Position your  Prepid card within the rectangle and ensure the image is perfectly readable.',
