@@ -41,6 +41,7 @@ dependencies:
   image_cropper: ^3.0.1
   url_launcher: ^6.1.6
   flutter_phone_direct_caller: ^2.1.1
+  google_mobile_ads: ^2.2.0
 
 dev_dependencies:
   flutter_test:
