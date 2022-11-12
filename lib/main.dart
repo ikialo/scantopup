@@ -6,11 +6,9 @@ import 'package:flutter_camera_overlay/model.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_camera_overlay/flutter_camera_overlay.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import 'ad_helper.dart';
 import 'firebase_options.dart';
@@ -61,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     // TODO: implement initState
-    _textDetector = GoogleMlKit.vision.textRecognizer();
+    _textDetector = TextRecognizer();
 
     _initGoogleMobileAds();
 
@@ -100,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
         null;
   }
 
-  void call(String number) => launchUrlString("tel:*121#$number#");
   void _recognizTexts(imagePath) async {
     // Creating an InputImage object using the image path
 
