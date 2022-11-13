@@ -111,16 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
         await _textDetector.processImage(inputImage); // Finding text String(s)
     for (TextBlock block in text.blocks) {
       for (TextLine line in block.lines) {
-        // print(alphanumeric.hasMatch(line.text));
-        // print('text: ${line.text}');
-
         if (alphanumeric.hasMatch(line.text)) {
           print('text: ${line.text}');
           String newline = line.text.replaceAll(RegExp(r'\s+'), "");
           print('text: ${newline}');
 
           if (isNumeric(newline))
-            //call(line.text);
             FlutterPhoneDirectCaller.callNumber("*121*${newline}#");
         }
       }
@@ -221,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _bannerAd?.dispose();
-
+    flash = false;
     super.dispose();
   }
 }
