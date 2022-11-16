@@ -10,7 +10,6 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:scantopup/webview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'ad_helper.dart';
@@ -59,6 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late final TextRecognizer _textDetector;
 
   final Uri _url = Uri.parse('https://ikialoec.web.app/#/');
+  final Uri _urlpp =
+      Uri.parse('https://sites.google.com/view/telitopupprivacypolicy/home');
 
   BannerAd? _bannerAd;
 
@@ -141,9 +142,9 @@ class _MyHomePageState extends State<MyHomePage> {
     clearRead = false;
   }
 
-  Future<void> _launchUrl() async {
-    if (!await launchUrl(_url)) {
-      throw 'Could not launch $_url';
+  Future<void> _launchUrl(url) async {
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
     }
   }
 
@@ -152,6 +153,32 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
         home: SafeArea(
             child: Scaffold(
+                drawer: Drawer(
+                  child: ListView(
+                    // Important: Remove any padding from the ListView.
+                    padding: EdgeInsets.zero,
+                    children: [
+                      const DrawerHeader(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: ExactAssetImage(
+                                  "assets/icons/ScanTopUp.png")),
+                          color: Color.fromARGB(255, 185, 120, 238),
+                        ),
+                        child: Text('Menu'),
+                      ),
+                      ListTile(
+                        title: const Text('Privacy Policy'),
+                        onTap: () {
+                          // Update the state of the app.
+                          // ...
+                          _launchUrl(_urlpp);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 bottomNavigationBar: BottomNavigationBar(
                   currentIndex: tab,
                   onTap: (value) {
@@ -169,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           format = OverlayFormat.simID000;
                         });
-                        _launchUrl();
+                        _launchUrl(_url);
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(
@@ -239,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: EdgeInsets.only(right: 20),
                       child: Container(
                         child: IconButton(
-                          icon: Icon(flash
+                          icon: Icon(!flash
                               ? Icons.flash_on_outlined
                               : Icons.flash_off),
                           onPressed: () {
