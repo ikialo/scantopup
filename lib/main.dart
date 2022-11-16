@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_camera_overlay/model.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:scantopup/webview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'ad_helper.dart';
 import 'firebase_options.dart';
@@ -50,9 +53,12 @@ class _MyHomePageState extends State<MyHomePage> {
   OverlayFormat format = OverlayFormat.simID000;
   int tab = 0;
   bool flash = false;
+  bool clearRead = false;
   final alphanumeric = RegExp(r'(\d{2,}\s){1,}');
 
   late final TextRecognizer _textDetector;
+
+  final Uri _url = Uri.parse('https://ikialoec.web.app/#/');
 
   BannerAd? _bannerAd;
 
@@ -116,10 +122,28 @@ class _MyHomePageState extends State<MyHomePage> {
           String newline = line.text.replaceAll(RegExp(r'\s+'), "");
           print('text: ${newline}');
 
-          if (isNumeric(newline))
+          if (isNumeric(newline)) {
             FlutterPhoneDirectCaller.callNumber("*121*${newline}#");
+            clearRead = true;
+            break;
+          }
         }
       }
+    }
+    if (!clearRead) {
+      Flushbar(
+        title: "Read Not Clear",
+        message: "Please Check If Prepaid Card is has all digits showing",
+        duration: Duration(seconds: 3),
+      )..show(context);
+    }
+
+    clearRead = false;
+  }
+
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url)) {
+      throw 'Could not launch $_url';
     }
   }
 
@@ -137,20 +161,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     switch (value) {
                       case (0):
                         setState(() {
-                          flash = true;
                           format = OverlayFormat.simID000;
                         });
                         break;
+
                       case (1):
                         setState(() {
                           format = OverlayFormat.simID000;
                         });
-                        break;
-                      case (2):
-                        setState(() {
-                          flash = false;
-                          format = OverlayFormat.simID000;
-                        });
+                        _launchUrl();
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const WebViewScreen()),
+                        // );
                         break;
                     }
                   },
@@ -160,9 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       label: 'Scan',
                     ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.contact_mail), label: 'US '),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.sim_card), label: 'Sim'),
+                        icon: Icon(Icons.shop), label: 'Shop'),
                   ],
                 ),
                 backgroundColor: Colors.white,
@@ -211,6 +233,25 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: AdWidget(ad: _bannerAd!),
                       ),
                     ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 20),
+                      child: Container(
+                        child: IconButton(
+                          icon: Icon(flash
+                              ? Icons.flash_on_outlined
+                              : Icons.flash_off),
+                          onPressed: () {
+                            setState(() {
+                              flash = !flash;
+                            });
+                          },
+                          color: flash ? Colors.black : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ]))));
   }
 
