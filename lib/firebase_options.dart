@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD8ZPEN0xYSOf9mH779TpvdtZICpd9Apfw',
-    appId: '1:597969533963:android:8d372f4744da476b131b0e',
+    appId: '1:597969533963:android:55f2c84a018f1d09131b0e',
     messagingSenderId: '597969533963',
     projectId: 'scantopup',
     storageBucket: 'scantopup.appspot.com',

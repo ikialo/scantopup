@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:another_flushbar/flushbar.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_camera_overlay/model.dart';
@@ -11,6 +10,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 import 'ad_helper.dart';
 import 'firebase_options.dart';
@@ -49,15 +49,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late InterstitialAd _interstitialAd;
+  bool isadloaded = false;
   OverlayFormat format = OverlayFormat.simID000;
   int tab = 0;
   bool flash = false;
   bool clearRead = false;
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   final alphanumeric = RegExp(r'(\d{2,}\s){1,}');
 
   late final TextRecognizer _textDetector;
 
-  final Uri _url = Uri.parse('https://ikialoec.web.app/#/');
+  final Uri _url = Uri.parse('https://ikialoec.web.app');
   final Uri _urlpp =
       Uri.parse('https://sites.google.com/view/telitopupprivacypolicy/home');
 
@@ -70,6 +73,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _initGoogleMobileAds();
 
+    InterstitialAd.load(
+        adUnitId: AdHelper.intetsititalAd,
+        request: AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+            onAdLoaded: onAdLoaded, onAdFailedToLoad: (error) {}));
     BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: AdRequest(),
@@ -81,13 +89,24 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
+          // print('Failed to load a banner ad: ${err.message}');
           ad.dispose();
         },
       ),
     ).load();
 
     super.initState();
+  }
+
+  void onAdLoaded(InterstitialAd ad) {
+    _interstitialAd = ad;
+    isadloaded = true;
+
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) => _interstitialAd.dispose(),
+      onAdFailedToShowFullScreenContent: (ad, error) =>
+          _interstitialAd.dispose(),
+    );
   }
 
   Future<InitializationStatus> _initGoogleMobileAds() {
@@ -107,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _recognizTexts(imagePath) async {
     // Creating an InputImage object using the image path
+    await analytics.logEvent(name: 'Image Taken');
 
     final croppedImg = await ImageCropper().cropImage(
         sourcePath: imagePath,
@@ -119,13 +139,20 @@ class _MyHomePageState extends State<MyHomePage> {
     for (TextBlock block in text.blocks) {
       for (TextLine line in block.lines) {
         if (alphanumeric.hasMatch(line.text)) {
-          print('text: ${line.text}');
+          // print('text: ${line.text}');
           String newline = line.text.replaceAll(RegExp(r'\s+'), "");
-          print('text: ${newline}');
+          // print('text: ${newline}');
 
           if (isNumeric(newline)) {
+            await analytics.logEvent(name: 'CardScanned');
+
+            await Clipboard.setData(ClipboardData(text: newline));
             FlutterPhoneDirectCaller.callNumber("*121*${newline}#");
             clearRead = true;
+
+            // run intersitial
+            _interstitialAd.show();
+
             break;
           }
         }
@@ -133,9 +160,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (!clearRead) {
       Flushbar(
-        title: "Read Not Clear",
-        message: "Please Check If Prepaid Card is has all digits showing",
-        duration: Duration(seconds: 3),
+        title: "Scanned Image Not Clear",
+        message: "Please Check If Prepaid Card has all digits showing",
+        duration: Duration(seconds: 5),
       )..show(context);
     }
 
@@ -197,11 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           format = OverlayFormat.simID000;
                         });
                         _launchUrl(_url);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => const WebViewScreen()),
-                        // );
+
                         break;
                     }
                   },
@@ -211,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       label: 'Scan',
                     ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.shop), label: 'Shop'),
+                        icon: Icon(Icons.explore), label: 'Explore'),
                   ],
                 ),
                 backgroundColor: Colors.white,
@@ -233,11 +256,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           snapshot.data!.first,
                           CardOverlay.byFormat(format),
                           (XFile file) {
-                            print(File(file.path));
+                            // print(File(file.path));
                             _recognizTexts(file.path);
                           },
                           info:
-                              'Position your  Prepid card within the rectangle and ensure the image is perfectly readable.',
+                              'Position your Prepaid card within the rectangle and ensure the image is perfectly readable.',
                           label: 'Scanning Prepaid Card',
                           flash: flash,
                         );
@@ -252,12 +275,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                   if (_bannerAd != null)
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        width: _bannerAd!.size.width.toDouble(),
-                        height: _bannerAd!.size.height.toDouble(),
-                        child: AdWidget(ad: _bannerAd!),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
                       ),
                     ),
                   Align(
