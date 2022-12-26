@@ -9,6 +9,7 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:scantopup/EsiPayScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -50,6 +51,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late InterstitialAd _interstitialAd;
+
   bool isadloaded = false;
   OverlayFormat format = OverlayFormat.simID000;
   int tab = 0;
@@ -78,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
         request: AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
             onAdLoaded: onAdLoaded, onAdFailedToLoad: (error) {}));
+
     BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: AdRequest(),
@@ -100,10 +103,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onAdLoaded(InterstitialAd ad) {
     _interstitialAd = ad;
-    isadloaded = true;
 
     _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) => _interstitialAd.dispose(),
+      onAdDismissedFullScreenContent: (ad) {
+
+        _interstitialAd.dispose();
+        isadloaded = true;
+
+
+      },
       onAdFailedToShowFullScreenContent: (ad, error) =>
           _interstitialAd.dispose(),
     );
@@ -151,7 +159,10 @@ class _MyHomePageState extends State<MyHomePage> {
             clearRead = true;
 
             // run intersitial
-            _interstitialAd.show();
+            if (!isadloaded){
+              _interstitialAd.show();
+
+            }
 
             break;
           }
@@ -206,36 +217,48 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                bottomNavigationBar: BottomNavigationBar(
-                  currentIndex: tab,
-                  onTap: (value) {
-                    setState(() {
-                      tab = value;
-                    });
-                    switch (value) {
-                      case (0):
-                        setState(() {
-                          format = OverlayFormat.simID000;
-                        });
-                        break;
+                bottomNavigationBar: Theme(
+                  data: Theme.of(context).copyWith(
+                    // sets the background color of the `BottomNavigationBar`
+                      canvasColor: Colors.white,
+                      // sets the active color of the `BottomNavigationBar` if `Brightness` is light
+                      primaryColor: Colors.red,
+                      textTheme: Theme
+                          .of(context)
+                          .textTheme
+                          .copyWith(caption: new TextStyle(color: Colors.yellow))),
+                  child: BottomNavigationBar(
+                    currentIndex: tab,
+                    onTap: (value) {
+                      setState(() {
+                        tab = value;
+                      });
+                      switch (value) {
+                        case (0):
+                          setState(() {
+                            format = OverlayFormat.simID000;
+                          });
+                          break;
 
-                      case (1):
-                        setState(() {
-                          format = OverlayFormat.simID000;
-                        });
-                        _launchUrl(_url);
+                        case (1):
+                          setState(() {
+                            format = OverlayFormat.simID000;
+                          });
+                          _launchUrl(_url);
 
-                        break;
-                    }
-                  },
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.credit_card),
-                      label: 'Scan',
-                    ),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.explore), label: 'Explore'),
-                  ],
+                          break;
+                      }
+                    },
+                    items: const [
+                      BottomNavigationBarItem(
+                        backgroundColor: Colors.purple,
+                        icon: Icon(Icons.credit_card),
+                        label: 'Scan',
+                      ),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.explore), label: 'Explore'),
+                    ],
+                  ),
                 ),
                 backgroundColor: Colors.white,
                 body: Stack(children: [
@@ -305,13 +328,191 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
+                  Positioned(
+                    bottom: 115,
+                    left: 4,
+                    child: Card(
+                      borderOnForeground: true,
+                      color: Colors.purple,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SingleChildScrollView(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                // run intersitial
+                                if (!isadloaded){
+                                  _interstitialAd.show();
+
+                                }
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const EsiPayScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+
+                                height: 120,
+                                width: 120,
+                                child: Card(
+                                    color: Colors.grey.withOpacity(0.5),
+
+                                    elevation: 15,
+                                    shadowColor: Colors.black,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10, bottom: 10),
+                                          child: Text("EsiPay",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                        ),
+                                        // Card(
+                                        //   elevation: 8,
+                                        //   shadowColor: Colors.black,
+                                        //   child: Padding(
+                                        //     padding: const EdgeInsets.all(4.0),
+                                        //     child: Image.asset(
+                                        //       'assets/icons/power.png',
+                                        //       height: 70,
+                                        //       width: 70,
+                                        //     ),
+                                        //   ),
+                                        // )
+                                      ],
+                                    )),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: (){
+                                // run intersitial
+                                if (!isadloaded){
+                                  _interstitialAd.show();
+
+                                }
+                                FlutterPhoneDirectCaller.callNumber("*675#");
+
+                              },
+                              child: Container(
+                                // decoration: BoxDecoration(
+                                //   gradient: LinearGradient(
+                                //     begin: Alignment.topRight,
+                                //     end: Alignment.bottomLeft,
+                                //     colors: [
+                                //       Color.fromRGBO(33, 150, 243, 1),
+                                //       Color.fromRGBO(244, 67, 54, 1),
+                                //     ],
+                                //   ),
+                                // ),
+                                height: 120,
+                                width: 120,
+                                child: Card(
+                                    color: Colors.grey.withOpacity(0.5),
+
+                                    elevation: 15,
+                                    shadowColor: Colors.black,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10, bottom: 10),
+                                          child: Text("*675#",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                        ),
+                                        // Card(
+                                        //
+                                        //   elevation: 8,
+                                        //   shadowColor: Colors.black,
+                                        //   child: Padding(
+                                        //     padding: const EdgeInsets.all(4.0),
+                                        //     child: Image.asset(
+                                        //       'assets/icons/power.png',
+                                        //       height: 70,
+                                        //       width: 70,
+                                        //     ),
+                                        //   ),
+                                        // )
+                                      ],
+                                    )),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // run intersitial
+
+
+                                if (!isadloaded){
+                                  _interstitialAd.show();
+
+                                }
+                                FlutterPhoneDirectCaller.callNumber("*777#");
+
+
+                              },
+                              child: Container(
+
+                                height: 120,
+                                width: 120,
+                                child: Card(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    elevation: 15,
+                                    shadowColor: Colors.black,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10, bottom: 10),
+                                          child: Text("*777#",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                        ),
+                                        // Card(
+                                        //   elevation: 8,
+                                        //   shadowColor: Colors.black,
+                                        //   child: Padding(
+                                        //     padding: const EdgeInsets.all(4.0),
+                                        //     child: Image.asset(
+                                        //       'assets/icons/power.png',
+                                        //       height: 70,
+                                        //       width: 70,
+                                        //     ),
+                                        //   ),
+                                        // )
+                                      ],
+                                    )),
+                              ),
+                            )
+                          ],
+                        )),
+                      ),
+                    ),
+                  )
                 ]))));
   }
 
   @override
   void dispose() {
+    _interstitialAd?.dispose();
     _bannerAd?.dispose();
     flash = false;
     super.dispose();
   }
 }
+
+
+
+/*
+*  delete id missing from class for deleting
+*
+* */
