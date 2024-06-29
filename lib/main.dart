@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late final TextRecognizer _textDetector;
 
-  final Uri _url = Uri.parse('https://ikialoec.web.app');
+  final Uri _url = Uri.parse('https://synarcsolutions.com');
   final Uri _urlpp =
       Uri.parse('https://sites.google.com/view/telitopupprivacypolicy/home');
 
@@ -106,11 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
-
         _interstitialAd.dispose();
         isadloaded = true;
-
-
       },
       onAdFailedToShowFullScreenContent: (ad, error) =>
           _interstitialAd.dispose(),
@@ -159,9 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
             clearRead = true;
 
             // run intersitial
-            if (!isadloaded){
-              _interstitialAd.show();
-
+            if (!isadloaded) {
+              try {
+                _interstitialAd.show();
+              } catch (e) {
+                print(e);
+              }
             }
 
             break;
@@ -191,6 +191,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
         home: SafeArea(
             child: Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.purpleAccent,
+                  actions: [
+                    IconButton(onPressed: () {}, icon: Icon(Icons.login))
+                  ],
+                ),
                 drawer: Drawer(
                   child: ListView(
                     // Important: Remove any padding from the ListView.
@@ -219,14 +225,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 bottomNavigationBar: Theme(
                   data: Theme.of(context).copyWith(
-                    // sets the background color of the `BottomNavigationBar`
+                      // sets the background color of the `BottomNavigationBar`
                       canvasColor: Colors.white,
                       // sets the active color of the `BottomNavigationBar` if `Brightness` is light
                       primaryColor: Colors.red,
-                      textTheme: Theme
-                          .of(context)
-                          .textTheme
-                          .copyWith(caption: new TextStyle(color: Colors.yellow))),
+                      textTheme: Theme.of(context).textTheme.copyWith(
+                          bodySmall: new TextStyle(color: Colors.yellow))),
                   child: BottomNavigationBar(
                     currentIndex: tab,
                     onTap: (value) {
@@ -341,11 +345,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             GestureDetector(
-                              onTap: (){
+                              onTap: () {
                                 // run intersitial
-                                if (!isadloaded){
-                                  _interstitialAd.show();
-
+                                if (!isadloaded) {
+                                  try {
+                                    _interstitialAd.show();
+                                  } catch (e) {
+                                    print(e);
+                                  }
                                 }
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -354,12 +361,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 );
                               },
                               child: Container(
-
                                 height: 120,
                                 width: 120,
                                 child: Card(
                                     color: Colors.grey.withOpacity(0.5),
-
                                     elevation: 15,
                                     shadowColor: Colors.black,
                                     child: Column(
@@ -369,7 +374,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               top: 10, bottom: 10),
-                                          child: Text("EsiPay",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                          child: Text("EsiPay",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white)),
                                         ),
                                         // Card(
                                         //   elevation: 8,
@@ -391,14 +399,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               width: 10,
                             ),
                             GestureDetector(
-                              onTap: (){
+                              onTap: () {
                                 // run intersitial
-                                if (!isadloaded){
+                                try {
                                   _interstitialAd.show();
-
+                                } catch (e) {
+                                  print(e);
                                 }
                                 FlutterPhoneDirectCaller.callNumber("*675#");
-
                               },
                               child: Container(
                                 // decoration: BoxDecoration(
@@ -415,7 +423,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 width: 120,
                                 child: Card(
                                     color: Colors.grey.withOpacity(0.5),
-
                                     elevation: 15,
                                     shadowColor: Colors.black,
                                     child: Column(
@@ -425,7 +432,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               top: 10, bottom: 10),
-                                          child: Text("*675#",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                          child: Text("*675#",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white)),
                                         ),
                                         // Card(
                                         //
@@ -451,17 +461,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               onTap: () {
                                 // run intersitial
 
-
-                                if (!isadloaded){
+                                try {
                                   _interstitialAd.show();
-
+                                } catch (e) {
+                                  print(e);
                                 }
                                 FlutterPhoneDirectCaller.callNumber("*777#");
-
-
                               },
                               child: Container(
-
                                 height: 120,
                                 width: 120,
                                 child: Card(
@@ -475,7 +482,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               top: 10, bottom: 10),
-                                          child: Text("*777#",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+                                          child: Text("*777#",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white)),
                                         ),
                                         // Card(
                                         //   elevation: 8,
